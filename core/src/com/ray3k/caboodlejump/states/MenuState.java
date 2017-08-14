@@ -36,6 +36,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -90,7 +91,7 @@ public class MenuState extends State {
         textButtton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                getCore().getAssetManager().get(Core.DATA_PATH + "/sfx/point.wav", Sound.class).play();
+                getCore().getAssetManager().get(Core.DATA_PATH + "/sfx/point.wav", Sound.class).play(.25f);
                 showCharacterSelect();
             }
         });
@@ -102,20 +103,20 @@ public class MenuState extends State {
         textButtton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                getCore().getAssetManager().get(Core.DATA_PATH + "/sfx/point.wav", Sound.class).play();
+                getCore().getAssetManager().get(Core.DATA_PATH + "/sfx/point.wav", Sound.class).play(.25f);
                 Gdx.app.exit();
             }
         });
     }
     
     private void showCharacterSelect() {
-        ((GameState)getCore().getStateManager().getState("game")).setSelectedCharacter("Jumpasaurus Rex");
+        ((GameState)getCore().getStateManager().getState("game")).setSelectedCharacter("rex");
         Dialog dialog = new Dialog("", skin) {
             @Override
             protected void result(Object object) {
                 super.result(object);
-                getCore().getAssetManager().get(Core.DATA_PATH + "/sfx/point.wav", Sound.class).play();
-                getCore().getStateManager().loadState("game");
+                getCore().getAssetManager().get(Core.DATA_PATH + "/sfx/point.wav", Sound.class).play(.25f);
+                showStageOptions();
             }
             
         };
@@ -145,6 +146,87 @@ public class MenuState extends State {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
                 ((GameState)getCore().getStateManager().getState("game")).setSelectedCharacter("rose");
+            }
+        });
+        
+        dialog.button("OK");
+        
+        dialog.show(stage);
+    }
+    
+    private void showStageOptions() {
+        final GameState gameState = (GameState) getCore().getStateManager().getState("game");
+        Dialog dialog = new Dialog("", skin) {
+            @Override
+            protected void result(Object object) {
+                super.result(object);
+                getCore().getAssetManager().get(Core.DATA_PATH + "/sfx/point.wav", Sound.class).play(.25f);
+                getCore().getStateManager().loadState("game");
+            }
+            
+        };
+        dialog.setFillParent(true);
+        
+        Label label = new Label("Stage settings...", skin, "title");
+        dialog.getContentTable().add(label).colspan(2);
+        
+        dialog.getContentTable().row();
+        label = new Label("Platform Spacing", skin);
+        dialog.getContentTable().add(label).colspan(2);
+        
+        dialog.getContentTable().row();
+        final Slider spacingSlider = new Slider(50, 800, 1, false, skin);
+        spacingSlider.setValue(gameState.getPlatformSpacing());
+        dialog.getContentTable().add(spacingSlider).growX().padLeft(50.0f);
+        
+        final Label spacingLabel = new Label(Integer.toString((int) spacingSlider.getValue()), skin);
+        dialog.getContentTable().add(spacingLabel).width(100.0f);
+        
+        spacingSlider.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+                spacingLabel.setText(Integer.toString((int) spacingSlider.getValue()));
+                gameState.setPlatformSpacing(spacingSlider.getValue());
+            }
+        });
+        
+        dialog.getContentTable().row();
+        label = new Label("Gravity", skin);
+        dialog.getContentTable().add(label).colspan(2);
+        
+        dialog.getContentTable().row();
+        final Slider gravitySlider = new Slider(100, 2000, 1, false, skin);
+        gravitySlider.setValue(gameState.getGravity());
+        dialog.getContentTable().add(gravitySlider).growX().padLeft(50.0f);
+        
+        final Label gravityLabel = new Label(Integer.toString((int) gravitySlider.getValue()), skin);
+        dialog.getContentTable().add(gravityLabel).width(100.0f);
+        
+        gravitySlider.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+                gravityLabel.setText(Integer.toString((int) gravitySlider.getValue()));
+                gameState.setGravity(gravitySlider.getValue());
+            }
+        });
+        
+        dialog.getContentTable().row();
+        label = new Label("Jump Power", skin);
+        dialog.getContentTable().add(label).colspan(2);
+        
+        dialog.getContentTable().row();
+        final Slider jumpPowerSlider = new Slider(50, 2000, 1, false, skin);
+        jumpPowerSlider.setValue(gameState.getJumpPower());
+        dialog.getContentTable().add(jumpPowerSlider).growX().padLeft(50.0f);
+        
+        final Label jumpPowerLabel = new Label(Integer.toString((int) jumpPowerSlider.getValue()), skin);
+        dialog.getContentTable().add(jumpPowerLabel).width(100.0f);
+        
+        jumpPowerSlider.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+                jumpPowerLabel.setText(Integer.toString((int) jumpPowerSlider.getValue()));
+                gameState.setJumpPower(jumpPowerSlider.getValue());
             }
         });
         

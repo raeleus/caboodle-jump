@@ -8,6 +8,12 @@ com.badlogic.gdx.graphics.g2d.BitmapFont: {
 	}
 }
 com.badlogic.gdx.graphics.Color: {
+	over: {
+		r: 0.9633333
+		g: 0.9633333
+		b: 0.9633333
+		a: 1
+	}
 	pressed: {
 		r: 0.38666666
 		g: 0.38666666
@@ -40,23 +46,31 @@ com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable: {
 		name: white
 		color: window-bg
 	}
+	button-over: {
+		name: button
+		color: over
+	}
+	over: {
+		name: white
+		color: over
+	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton$ImageTextButtonStyle: {
 	default: {
 		font: font
-		over: white
+		over: over
 		checked: selected
 	}
 	rex: {
 		imageUp: thumb-jumpasaurus-rex
 		font: font
-		over: white
+		over: over
 		checked: selected
 	}
 	rose: {
 		imageUp: thumb-rose-bud
 		font: font
-		over: white
+		over: over
 		checked: selected
 	}
 }
@@ -85,6 +99,7 @@ com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
 		font: font
 		up: button
 		down: button-pressed
+		over: button-over
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.TextTooltip$TextTooltipStyle: {

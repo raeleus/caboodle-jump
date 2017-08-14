@@ -50,7 +50,7 @@ public class GameOverState extends State {
 
     @Override
     public void start() {
-        skin = getCore().getAssetManager().get(Core.DATA_PATH + "/skin/munch-man-ui.json", Skin.class);
+        skin = getCore().getAssetManager().get(Core.DATA_PATH + "/ui/caboodle-jump-ui.json", Skin.class);
         
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
@@ -60,7 +60,7 @@ public class GameOverState extends State {
 
     @Override
     public void draw(SpriteBatch spriteBatch, float delta) {
-        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClearColor(.93f, .70f, .58f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.draw();
     }
@@ -111,6 +111,11 @@ public class GameOverState extends State {
         
         root.row();
         label = new Label("Score\n\n" + score, skin);
+        label.setAlignment(Align.center);
+        root.add(label).pad(20.0f);
+        
+        root.row();
+        label = new Label("High Score\n\n" + highScore, skin);
         label.setAlignment(Align.center);
         root.add(label).pad(20.0f);
         

@@ -39,7 +39,6 @@ public class Core extends ApplicationAdapter {
     private long lag;
     private TextureAtlas atlas;
     private SkeletonRenderer skeletonRenderer;
-    private TwoColorPolygonBatch twoColorPolygonBatch;
 
     @Override
     public void create() {
@@ -95,7 +94,6 @@ public class Core extends ApplicationAdapter {
         pixmapPacker = new PixmapPacker(1024, 1024, Pixmap.Format.RGBA8888, 5, true, new PixmapPacker.GuillotineStrategy());
         
         skeletonRenderer = new SkeletonRenderer();
-        twoColorPolygonBatch = new TwoColorPolygonBatch(3100);
     }
     
     @Override
@@ -204,9 +202,5 @@ public class Core extends ApplicationAdapter {
 
     public SkeletonRenderer getSkeletonRenderer() {
         return skeletonRenderer;
-    }
-
-    public TwoColorPolygonBatch getTwoColorPolygonBatch() {
-        return twoColorPolygonBatch;
     }
 }

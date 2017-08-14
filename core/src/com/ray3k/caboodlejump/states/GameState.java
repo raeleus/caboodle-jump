@@ -26,25 +26,26 @@ package com.ray3k.caboodlejump.states;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.ray3k.caboodlejump.Core;
-import com.ray3k.caboodlejump.Entity;
 import com.ray3k.caboodlejump.EntityManager;
 import com.ray3k.caboodlejump.InputManager;
 import com.ray3k.caboodlejump.State;
-import java.util.List;
+import com.ray3k.caboodlejump.entities.BackgroundEntity;
+import com.ray3k.caboodlejump.entities.CameraControllerEntity;
+import com.ray3k.caboodlejump.entities.FallingPlatformEntity;
+import com.ray3k.caboodlejump.entities.MovingPlatformEntity;
+import com.ray3k.caboodlejump.entities.PlatformEntity;
+import com.ray3k.caboodlejump.entities.PlayerEntity;
 
 public class GameState extends State {
     private String selectedCharacter;
@@ -60,9 +61,17 @@ public class GameState extends State {
     private Table table;
     private Label scoreLabel;
     private EntityManager entityManager;
+    private float platformSpacing;
+    private float gravity;
+    private float jumpPower;
+    private CameraControllerEntity cameraControllerEntity;
+    private float platformGoalY;
     
     public GameState(Core core) {
         super(core);
+        platformSpacing = 400.0f;
+        gravity = 1000.0f;
+        jumpPower = 1000.0f;
     }
     
     @Override
@@ -100,6 +109,21 @@ public class GameState extends State {
         entityManager = new EntityManager();
         
         createStageElements();
+        
+        BackgroundEntity backgroundEntity = new BackgroundEntity(this);
+        backgroundEntity.setWidth(Gdx.graphics.getWidth());
+        backgroundEntity.setHeight(Gdx.graphics.getHeight());
+        
+        cameraControllerEntity = new CameraControllerEntity(this);
+        cameraControllerEntity.setPosition(Gdx.graphics.getWidth() / 2.0f, Gdx.graphics.getHeight() / 2.0f);
+        
+        PlayerEntity playerEntity = new PlayerEntity(this);
+        playerEntity.setPosition(Gdx.graphics.getWidth() / 2.0f, 0.0f);
+        
+        for (float i = platformSpacing; i < Gdx.graphics.getHeight(); i += platformSpacing) {
+            spawnPlatform(i);
+            platformGoalY = i + platformSpacing;
+        }
     }
     
     private void createStageElements() {
@@ -117,10 +141,10 @@ public class GameState extends State {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         
         gameCamera.update();
-        getCore().getTwoColorPolygonBatch().setProjectionMatrix(gameCamera.combined);
-        getCore().getTwoColorPolygonBatch().begin();
+        spriteBatch.setProjectionMatrix(gameCamera.combined);
+        spriteBatch.begin();
         entityManager.draw(spriteBatch, delta);
-        getCore().getTwoColorPolygonBatch().end();
+        spriteBatch.end();
         
         stage.draw();
     }
@@ -188,18 +212,85 @@ public class GameState extends State {
     }
     
     public void playBreakSound() {
-        getCore().getAssetManager().get(Core.DATA_PATH + "/sfx/break.wav", Sound.class).play(.05f);
+        getCore().getAssetManager().get(Core.DATA_PATH + "/sfx/break.wav", Sound.class).play(.5f);
     }
     
     public void playFallSound() {
-        getCore().getAssetManager().get(Core.DATA_PATH + "/sfx/fall.wav", Sound.class).play();
+        getCore().getAssetManager().get(Core.DATA_PATH + "/sfx/fall.wav", Sound.class).play(.5f);
     }
     
     public void playJumpSound() {
-        getCore().getAssetManager().get(Core.DATA_PATH + "/sfx/jump.wav", Sound.class).play();
+        getCore().getAssetManager().get(Core.DATA_PATH + "/sfx/jump.wav", Sound.class).play(.5f);
     }
     
     public void playPointSound() {
-        getCore().getAssetManager().get(Core.DATA_PATH + "/sfx/point.wav", Sound.class).play();
+        getCore().getAssetManager().get(Core.DATA_PATH + "/sfx/point.wav", Sound.class).play(.5f);
+    }
+
+    public float getPlatformSpacing() {
+        return platformSpacing;
+    }
+
+    public void setPlatformSpacing(float platformSpacing) {
+        this.platformSpacing = platformSpacing;
+    }
+
+    public float getGravity() {
+        return gravity;
+    }
+
+    public void setGravity(float gravity) {
+        this.gravity = gravity;
+    }
+
+    public float getJumpPower() {
+        return jumpPower;
+    }
+
+    public void setJumpPower(float jumpPower) {
+        this.jumpPower = jumpPower;
+    }
+
+    public OrthographicCamera getGameCamera() {
+        return gameCamera;
+    }
+
+    public void setGameCamera(OrthographicCamera gameCamera) {
+        this.gameCamera = gameCamera;
+    }
+
+    public CameraControllerEntity getCameraControllerEntity() {
+        return cameraControllerEntity;
+    }
+
+    public void setCameraControllerEntity(
+            CameraControllerEntity cameraControllerEntity) {
+        this.cameraControllerEntity = cameraControllerEntity;
+    }
+    
+    public void spawnPlatform(float y) {
+        float x = MathUtils.random(70.0f, Gdx.graphics.getWidth() - 140.0f);
+        PlatformEntity platform;
+        int selection = MathUtils.random(0, 2);
+        switch (selection) {
+            case 0:
+                platform = new PlatformEntity(this);
+                break;
+            case 1:
+                platform = new MovingPlatformEntity(this);
+                break;
+            default:
+                platform = new FallingPlatformEntity(this);
+                break;
+        }
+        platform.setPosition(x, y);
+    }
+
+    public float getPlatformGoalY() {
+        return platformGoalY;
+    }
+
+    public void setPlatformGoalY(float platformGoalY) {
+        this.platformGoalY = platformGoalY;
     }
 }
